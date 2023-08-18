@@ -1,0 +1,43 @@
+{{ define "body" }}
+<ul class="nav nav-underline justify-content-center">
+  {{ range .Brands }}
+  <li class="nav-item">
+    <a class="nav-link" href="/brands/{{ .Id }}">{{ .BrandsName }}</a>
+  </li>
+  {{ end }}
+
+</ul>
+<table class="table table-bordered border-primary table-sm">
+  <thead>
+    <tr>
+      <th scope="col">Image</th>
+      <th scope="col">Item</th>
+    </tr>
+  </thead>
+
+  {{ range $key, $value := .Products }}
+  <tbody>
+     <tr>
+      <td><img src={{ $key.Image }} class="img-fluid rounded-start" alt="image" width="100" height="100"/></td>
+     <td>
+
+     {{ range $value}}
+     <table class="table table-bordered border-primary table-sm">
+
+       <tbody>
+         <td><p class="card-text"><small class="text-body-secondary"> {{ .Name }} <br> </small></p></td>
+         <td><p class="card-text">{{ .Price }} </p></td>
+         <td><p class="card-text"><small class="text-body-secondary">{{ .Amount }}</small></p></td>
+       </tbody>
+
+       </table>
+       {{ end }}
+
+    </td>
+    </tr>
+  </tbody>
+  {{ end }}
+
+</table>
+
+{{ end }}
