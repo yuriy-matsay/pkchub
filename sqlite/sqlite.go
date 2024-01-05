@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 	"pkhub/models"
-	// "github.com/labstack/echo/v4"
+
 	_ "modernc.org/sqlite"
 )
 
@@ -61,11 +61,11 @@ func (s *Sqlite) GetCategories() (listCategories []models.Categories, err error)
 	return
 }
 
-func (s *Sqlite) GetGoodsByCategory(categoryId string) (goods map[models.Models][]models.Product, err error) {
+func (s *Sqlite) GetGoodsByCategory(categoryId string) (goods map[models.Models][]models.Item, err error) {
 
 	listModel := s.getListModelsByCategory(categoryId)
 
-	goods = make(map[models.Models][]models.Product)
+	goods = make(map[models.Models][]models.Item)
 
 	for _, i := range listModel {
 		rows, _ := s.db.Query(`
@@ -73,19 +73,22 @@ func (s *Sqlite) GetGoodsByCategory(categoryId string) (goods map[models.Models]
 			FROM goods
 			INNER JOIN brands ON goods.brand = brands.id
 			INNER JOIN models ON goods.model = models.id
-			WHERE goods.model = ? AND goods.active = 1
+			WHERE goods.model = ? AND goods.active = 1 AND goods.amount > 0
 			`, i.Id)
 
-		products := []models.Product{}
+		products := []models.Item{}
 		for rows.Next() {
-			product := models.Product{}
+			product := models.Item{}
 			if err = rows.Scan(&product.Name, &product.Price, &product.Amount, &product.Brand, &product.Model); err != nil {
 				log.Print(err)
 				return
 			}
+
 			products = append(products, product)
 		}
-		goods[i] = products
+		if len(products) > 0 {
+			goods[i] = products
+		}
 	}
 	return
 }
@@ -113,11 +116,11 @@ func (s *Sqlite) GetBrandsByCategory(categoryId string) (listBrands []models.Bra
 	return
 }
 
-func (s *Sqlite) GetGoodsByBrand(brandId string) (goods map[models.Models][]models.Product, err error) {
+func (s *Sqlite) GetGoodsByBrand(brandId, categoryId string) (goods map[models.Models][]models.Item, err error) {
 
-	listModel := s.getListModelsByBrand(brandId)
+	listModel := s.getListModelsByBrand(brandId, categoryId)
 
-	goods = make(map[models.Models][]models.Product)
+	goods = make(map[models.Models][]models.Item)
 
 	for _, i := range listModel {
 		rows, _ := s.db.Query(`
@@ -128,9 +131,9 @@ func (s *Sqlite) GetGoodsByBrand(brandId string) (goods map[models.Models][]mode
 			WHERE goods.model = ? AND goods.active = 1
 			`, i.Id)
 
-		products := []models.Product{}
+		products := []models.Item{}
 		for rows.Next() {
-			product := models.Product{}
+			product := models.Item{}
 			if err = rows.Scan(&product.Name, &product.Price, &product.Amount, &product.Brand, &product.Model); err != nil {
 				log.Print(err)
 				return
@@ -140,27 +143,6 @@ func (s *Sqlite) GetGoodsByBrand(brandId string) (goods map[models.Models][]mode
 		goods[i] = products
 	}
 	return
-
-	// rows, err := s.db.Query(`
-	// 	SELECT DISTINCT goods.model, models.image
-	// 	FROM goods
-	// 	INNER JOIN models ON goods.model = models.id
-	// 	WHERE brand = ? AND goods.active = 1
-	// 	`, brand)
-	// if err != nil {
-	// 	log.Print(err)
-	// 	return
-	// }
-	//
-	// for rows.Next() {
-	// 	modelitem := models.Models{}
-	// 	if err = rows.Scan(&modelitem.Id, &modelitem.Image); err != nil {
-	// 		log.Print(err)
-	// 		return
-	// 	}
-	// 	modelsImageList = append(modelsImageList, modelitem)
-	// }
-	// return
 }
 
 func (s *Sqlite) getListModelsByCategory(category string) (modelsImageList []models.Models) {
@@ -186,13 +168,13 @@ func (s *Sqlite) getListModelsByCategory(category string) (modelsImageList []mod
 	return
 }
 
-func (s *Sqlite) getListModelsByBrand(brand string) (modelsImageList []models.Models) {
+func (s *Sqlite) getListModelsByBrand(brand, category string) (modelsImageList []models.Models) {
 	rows, err := s.db.Query(`
 		SELECT DISTINCT goods.model, models.image
 		FROM goods
 		INNER JOIN models ON goods.model = models.id
-		WHERE brand = ? AND goods.active = 1
-		`, brand)
+		WHERE brand = ? AND category = ? AND goods.active = 1
+		`, brand, category)
 	if err != nil {
 		log.Print(err)
 		return

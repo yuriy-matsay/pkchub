@@ -1,38 +1,38 @@
 package models
 
 type Categories struct {
-	Id             int    `json:"id"`
-	CategoriesName string `json:"categoriesName"`
+	Id             int
+	CategoriesName string
 }
 
 type Brands struct {
-	Id         int    `json:"id"`
-	BrandsName string `json:"brandsName"`
+	Id         int
+	BrandsName string
 }
 
 type Models struct {
-	Id         int    `json:"id"`
-	ModelsName string `json:"modelsName"`
-	Image      string `json:"image"`
+	Id         int
+	ModelsName string
+	Image      string
 }
 
 type Goods struct {
-	GoodsId   int    `json:"goodsId"`
-	IdSite    int    `json:"-"`
-	Active    int    `json:"active"`
-	Article   string `json:"-"`
-	GoodsName string `json:"goodsName"`
-	Model     int    `json:"model"`
-	Brand     int    `json:"brand"`
-	Category  int    `json:"category"`
-	Amount    int    `json:"amount"`
-	Uah       int    `json:"uah"`
-	Usd       int    `json:"usd"`
-	Eur       int    `json:"eur"`
-	Price     int    `json:"price"`
+	GoodsId   int
+	IdSite    int
+	Active    int
+	Article   string
+	GoodsName string
+	Model     int
+	Brand     int
+	Category  int
+	Amount    int
+	Uah       int
+	Usd       int
+	Eur       int
+	Price     int
 }
 
-type Product struct {
+type Item struct {
 	Name   string
 	Price  int
 	Brand  string

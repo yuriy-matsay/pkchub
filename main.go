@@ -49,7 +49,7 @@ func main() {
 	e.Use(middleware.Recover())
 
 	e.GET("/", hdl.GetCategories)
-	e.GET("/categories/:id", hdl.GetGoods)
+	e.GET("/categories/:id", hdl.GetGoodsByCategory)
 	e.GET("/brands/:id", hdl.GetGoodsByBrand)
 
 	e.Logger.Fatal(e.Start(":8000"))

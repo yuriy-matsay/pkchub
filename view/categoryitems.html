@@ -1,8 +1,9 @@
 {{ define "body" }}
 <ul class="nav nav-underline justify-content-center">
+  {{ $cat := .Category }}
   {{ range .Brands }}
   <li class="nav-item">
-    <a class="nav-link" href="/brands/{{ .Id }}">{{ .BrandsName }}</a>
+    <a class="nav-link" href="/brands/{{ .Id }}?category={{ $cat}}">{{ .BrandsName }}</a>
   </li>
   {{ end }}
 
