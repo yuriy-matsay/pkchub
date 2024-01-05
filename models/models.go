@@ -1,19 +1,19 @@
 package models
 
-type Categories struct {
-	Id             int
-	CategoriesName string
+type Category struct {
+	Id           int
+	CategoryName string
 }
 
-type Brands struct {
-	Id         int
-	BrandsName string
+type Brand struct {
+	Id        int
+	BrandName string
 }
 
-type Models struct {
-	Id         int
-	ModelsName string
-	Image      string
+type Model struct {
+	Id        int
+	ModelName string
+	Image     string
 }
 
 type Goods struct {
