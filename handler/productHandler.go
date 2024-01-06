@@ -50,3 +50,10 @@ func (h *Handler) GetGoodsByBrand(c echo.Context) error {
 
 	return c.Render(http.StatusOK, "branditems", data)
 }
+
+func (h *Handler) GetItem(c echo.Context) error {
+
+	data := "https://prokotly.com.ua/wp-content/uploads/2019/07/170419152715.jpg"
+
+	return c.Render(http.StatusOK, "item", data)
+}

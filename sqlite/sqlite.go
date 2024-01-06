@@ -61,40 +61,6 @@ func (s *Sqlite) GetCategories() (listCategories []models.Category, err error) {
 	return
 }
 
-func (s *Sqlite) GetGoodsByCategory(categoryId string) (goods []map[models.Model][]models.Item, err error) {
-
-	listModel := s.getListModelsByCategory(categoryId)
-
-	for _, i := range listModel {
-		rows, _ := s.db.Query(`
-			SELECT goods.goodsName, goods.uah, goods.amount, brands.brandsName, models.modelsName
-			FROM goods
-			INNER JOIN brands ON goods.brand = brands.id
-			INNER JOIN models ON goods.model = models.id
-			WHERE goods.model = ? AND goods.active = 1 AND goods.amount > 0
-			`, i.Id)
-
-		items := []models.Item{}
-		itemListByModel := make(map[models.Model][]models.Item)
-		for rows.Next() {
-			item := models.Item{}
-			if err = rows.Scan(&item.Name, &item.Price, &item.Amount, &item.Brand, &item.Model); err != nil {
-				log.Print(err)
-				return
-			}
-			items = append(items, item)
-		}
-		if len(items) > 0 {
-			itemListByModel[i] = items
-			goods = append(goods, itemListByModel)
-		}
-	}
-	if len(goods) == 0 {
-		goods, err = s.getAllGoodsByCategory(categoryId)
-	}
-	return
-}
-
 func (s *Sqlite) GetBrandsByCategory(categoryId string) (listBrands []models.Brand, err error) {
 	rows, err := s.db.Query(`
 		SELECT DISTINCT goods.brand, brands.brandsName
@@ -114,6 +80,64 @@ func (s *Sqlite) GetBrandsByCategory(categoryId string) (listBrands []models.Bra
 			return
 		}
 		listBrands = append(listBrands, brand)
+	}
+	return
+}
+
+func (s *Sqlite) GetGoodsByCategory(categoryId string) (goods []map[models.Model][]models.Item, err error) {
+
+	listModel := s.getListModelsByCategory(categoryId)
+
+	stmtUAH, _ := s.db.Prepare(`
+			SELECT goods.goodsName, goods.uah, goods.amount, brands.brandsName, models.modelsName
+			FROM goods
+			INNER JOIN brands ON goods.brand = brands.id
+			INNER JOIN models ON goods.model = models.id
+			WHERE goods.model = ? AND goods.active = 1 AND goods.amount > 0
+			`)
+	stmtUSD, _ := s.db.Prepare(`
+			SELECT goods.goodsName, goods.usd, goods.amount, brands.brandsName, models.modelsName
+			FROM goods
+			INNER JOIN brands ON goods.brand = brands.id
+			INNER JOIN models ON goods.model = models.id
+			WHERE goods.model = ? AND goods.active = 1 AND goods.amount > 0
+			`)
+
+	var stmt *sql.Stmt
+
+	if categoryId == "6" {
+		stmt = stmtUSD
+	} else {
+		stmt = stmtUAH
+	}
+
+	for _, i := range listModel {
+		// rows, _ := s.db.Query(`
+		// 	SELECT goods.goodsName, goods.uah, goods.amount, brands.brandsName, models.modelsName
+		// 	FROM goods
+		// 	INNER JOIN brands ON goods.brand = brands.id
+		// 	INNER JOIN models ON goods.model = models.id
+		// 	WHERE goods.model = ? AND goods.active = 1 AND goods.amount > 0
+		// 	`, i.Id)
+		rows, _ := stmt.Query(i.Id)
+
+		items := []models.Item{}
+		itemListByModel := make(map[models.Model][]models.Item)
+		for rows.Next() {
+			item := models.Item{}
+			if err = rows.Scan(&item.Name, &item.Price, &item.Amount, &item.Brand, &item.Model); err != nil {
+				log.Print(err)
+				return
+			}
+			items = append(items, item)
+		}
+		if len(items) > 0 {
+			itemListByModel[i] = items
+			goods = append(goods, itemListByModel)
+		}
+	}
+	if len(goods) == 0 {
+		goods, err = s.getAllGoodsByCategory(categoryId)
 	}
 	return
 }

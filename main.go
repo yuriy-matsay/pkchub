@@ -40,6 +40,7 @@ func main() {
 	templates["startpage"] = template.Must(template.ParseFiles("view/index.html", "view/startpage.html"))
 	templates["categoryitems"] = template.Must(template.ParseFiles("view/index.html", "view/categoryitems.html"))
 	templates["branditems"] = template.Must(template.ParseFiles("view/index.html", "view/branditems.html"))
+	templates["item"] = template.Must(template.ParseFiles("view/index.html", "view/item.html"))
 
 	e.Renderer = &Template{
 		templates: templates,
@@ -51,6 +52,7 @@ func main() {
 	e.GET("/", hdl.GetCategories)
 	e.GET("/categories/:id", hdl.GetGoodsByCategory)
 	e.GET("/brands/:id", hdl.GetGoodsByBrand)
+	e.GET("/item", hdl.GetItem)
 
 	e.Logger.Fatal(e.Start(":8000"))
 }
