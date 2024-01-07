@@ -5,11 +5,13 @@ import (
 )
 
 type Handler struct {
-	services *service.Service
+	services   *service.Service
+	currencies string
 }
 
 func NewHandler(s *service.Service) *Handler {
 	return &Handler{
-		services: s,
+		services:   s,
+		currencies: s.Storage.GetCurrencies(),
 	}
 }

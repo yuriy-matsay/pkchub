@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 	"pkhub/models"
+	"strconv"
+	"strings"
 
 	_ "modernc.org/sqlite"
 )
@@ -35,6 +37,15 @@ func OpenDatabase() (db *sql.DB, err error) {
 	// 	log.Print("migration failed")
 	// }
 
+	return
+}
+
+func (s *Sqlite) GetCurrencies() (currencies string) {
+	var usd string
+	var eur string
+	s.db.QueryRow(`SELECT currencies.rate FROM currencies WHERE id = 2`).Scan(&usd)
+	s.db.QueryRow(`SELECT currencies.rate FROM currencies WHERE id = 3`).Scan(&eur)
+	currencies = "USD " + usd + " | " + "EUR " + eur
 	return
 }
 
@@ -88,44 +99,30 @@ func (s *Sqlite) GetGoodsByCategory(categoryId string) (goods []map[models.Model
 
 	listModel := s.getListModelsByCategory(categoryId)
 
-	stmtUAH, _ := s.db.Prepare(`
-			SELECT goods.goodsName, goods.uah, goods.amount, brands.brandsName, models.modelsName
-			FROM goods
-			INNER JOIN brands ON goods.brand = brands.id
-			INNER JOIN models ON goods.model = models.id
-			WHERE goods.model = ? AND goods.active = 1 AND goods.amount > 0
-			`)
-	stmtUSD, _ := s.db.Prepare(`
-			SELECT goods.goodsName, goods.usd, goods.amount, brands.brandsName, models.modelsName
-			FROM goods
-			INNER JOIN brands ON goods.brand = brands.id
-			INNER JOIN models ON goods.model = models.id
-			WHERE goods.model = ? AND goods.active = 1 AND goods.amount > 0
-			`)
-
-	var stmt *sql.Stmt
-
-	if categoryId == "6" {
-		stmt = stmtUSD
-	} else {
-		stmt = stmtUAH
-	}
+	// stmtUAH, _ := s.db.Prepare(`
+	// 		SELECT goods.goodsName, goods.price, goods.amount, brands.brandsName, models.modelsName
+	// 		FROM goods
+	// 		INNER JOIN brands ON goods.brand = brands.id
+	// 		INNER JOIN models ON goods.model = models.id
+	// 		WHERE goods.model = ? AND goods.active = 1 AND goods.amount > 0
+	// 		`)
 
 	for _, i := range listModel {
-		// rows, _ := s.db.Query(`
-		// 	SELECT goods.goodsName, goods.uah, goods.amount, brands.brandsName, models.modelsName
-		// 	FROM goods
-		// 	INNER JOIN brands ON goods.brand = brands.id
-		// 	INNER JOIN models ON goods.model = models.id
-		// 	WHERE goods.model = ? AND goods.active = 1 AND goods.amount > 0
-		// 	`, i.Id)
-		rows, _ := stmt.Query(i.Id)
+		rows, _ := s.db.Query(`
+			SELECT goods.goodsId, goods.goodsName, goods.price, currencies.currencyName, currencies.rate, goods.amount, brands.brandsName, models.modelsName
+			FROM goods
+			INNER JOIN currencies ON goods.currency = currencies.id
+			INNER JOIN brands ON goods.brand = brands.id
+			INNER JOIN models ON goods.model = models.id
+			WHERE goods.model = ? AND goods.active = 1 AND goods.amount > 0
+			`, i.Id)
+		// rows, _ := stmt.Query(i.Id)
 
 		items := []models.Item{}
 		itemListByModel := make(map[models.Model][]models.Item)
 		for rows.Next() {
 			item := models.Item{}
-			if err = rows.Scan(&item.Name, &item.Price, &item.Amount, &item.Brand, &item.Model); err != nil {
+			if err = rows.Scan(&item.Id, &item.Name, &item.Price, &item.Currency, &item.Rate, &item.Amount, &item.Brand, &item.Model); err != nil {
 				log.Print(err)
 				return
 			}
@@ -150,8 +147,9 @@ func (s *Sqlite) GetGoodsByBrand(brandId, categoryId string) (goods map[models.M
 
 	for _, i := range listModel {
 		rows, _ := s.db.Query(`
-			SELECT goods.goodsName, goods.uah, goods.amount, brands.brandsName, models.modelsName
+			SELECT goods.goodsId, goods.goodsName, goods.price, currencies.currencyName, currencies.rate, goods.amount, brands.brandsName, models.modelsName
 			FROM goods
+			INNER JOIN currencies ON goods.currency = currencies.id
 			INNER JOIN brands ON goods.brand = brands.id
 			INNER JOIN models ON goods.model = models.id
 			WHERE goods.model = ? AND goods.active = 1
@@ -160,7 +158,7 @@ func (s *Sqlite) GetGoodsByBrand(brandId, categoryId string) (goods map[models.M
 		items := []models.Item{}
 		for rows.Next() {
 			item := models.Item{}
-			if err = rows.Scan(&item.Name, &item.Price, &item.Amount, &item.Brand, &item.Model); err != nil {
+			if err = rows.Scan(&item.Id, &item.Name, &item.Price, &item.Currency, &item.Rate, &item.Amount, &item.Brand, &item.Model); err != nil {
 				log.Print(err)
 				return
 			}
@@ -168,6 +166,28 @@ func (s *Sqlite) GetGoodsByBrand(brandId, categoryId string) (goods map[models.M
 		}
 		goods[i] = items
 	}
+	return
+}
+
+func (s *Sqlite) GetItemParams(itemId string) (data []models.Param) {
+	var params string
+	s.db.QueryRow(`SELECT goods.params FROM goods WHERE goodsId = ?`, itemId).Scan(&params)
+
+	if params != "" {
+		data = s.getParams(s.convertStringToIntArray(params))
+	}
+	return
+}
+
+func (s *Sqlite) GetItemInfo(itemId string) (data models.Item) {
+
+	s.db.QueryRow(`
+		SELECT models.image, goods.goodsName, goods.price, currencies.currencyName, currencies.rate
+		FROM goods
+		INNER JOIN models ON goods.model = models.id
+		INNER JOIN currencies ON goods.currency = currencies.id
+		WHERE goodsId = ?
+		`, itemId).Scan(&data.Image, &data.Name, &data.Price, &data.Currency, &data.Rate)
 	return
 }
 
@@ -223,7 +243,7 @@ func (s *Sqlite) getAllGoodsByCategory(categoryId string) (goods []map[models.Mo
 
 	for _, i := range listModel {
 		rows, _ := s.db.Query(`
-			SELECT goods.goodsName, goods.uah, goods.amount, brands.brandsName, models.modelsName
+			SELECT goods.goodsId, goods.goodsName, goods.price, goods.amount, brands.brandsName, models.modelsName
 			FROM goods
 			INNER JOIN brands ON goods.brand = brands.id
 			INNER JOIN models ON goods.model = models.id
@@ -234,7 +254,7 @@ func (s *Sqlite) getAllGoodsByCategory(categoryId string) (goods []map[models.Mo
 		itemListByModel := make(map[models.Model][]models.Item)
 		for rows.Next() {
 			item := models.Item{}
-			if err = rows.Scan(&item.Name, &item.Price, &item.Amount, &item.Brand, &item.Model); err != nil {
+			if err = rows.Scan(&item.Id, &item.Name, &item.Price, &item.Amount, &item.Brand, &item.Model); err != nil {
 				log.Print(err)
 				return
 			}
@@ -242,6 +262,37 @@ func (s *Sqlite) getAllGoodsByCategory(categoryId string) (goods []map[models.Mo
 		}
 		itemListByModel[i] = items
 		goods = append(goods, itemListByModel)
+	}
+	return
+}
+
+func (s *Sqlite) convertStringToIntArray(params string) (paramsList []int) {
+	strValues := strings.Split(params, ", ")
+	for _, strValue := range strValues {
+		intValue, err := strconv.Atoi(strValue)
+		if err != nil {
+			log.Print(err)
+		}
+		paramsList = append(paramsList, intValue)
+	}
+	return
+}
+
+func (s *Sqlite) getParams(paramsList []int) (params []models.Param) {
+	for _, paramValue := range paramsList {
+		rows, _ := s.db.Query(`
+			SELECT paramNames.name, paramData.value
+			FROM paramNames
+			INNER JOIN paramData ON paramData.paramNameId = paramNames.id
+			WHERE paramData.id = ?
+		`, paramValue)
+		for rows.Next() {
+			param := models.Param{}
+			if err := rows.Scan(&param.Name, &param.Value); err != nil {
+				log.Print(err)
+			}
+			params = append(params, param)
+		}
 	}
 	return
 }

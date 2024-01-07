@@ -28,8 +28,12 @@
      <table class="table table-bordered border-primary table-sm">
 
        <tbody>
-         <td><p class="card-text"><small class="text-body-secondary"> <a class="nav-link" href="/item">{{ .Name }}</a> </small></p></td>
-         <td><p class="card-text">{{ .Price }} </p></td>
+         <td><p class="card-text"><small class="text-body-secondary"> <a class="nav-link" href="/item/{{ .Id }}">{{ .Name }}</a> </small></p></td>
+         <td><p class="card-text">{{ .Price }}_{{ .Currency }} <br>
+         {{ if gt .Rate 1.00 }}
+         {{ .ConvertPriceToUAH .Price .Rate }}_UAH</p>
+         {{ end }}
+         </td>
          <td><p class="card-text"><small class="text-body-secondary">{{ .Amount }}</small></p></td>
        </tbody>
 

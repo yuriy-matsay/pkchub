@@ -1,16 +1,19 @@
 {{ define "body" }}
 
 <div class="card" style="width: 25rem;">
-  <img src="{{ . }}" class="card-img-top" alt="...">
+  <img src="{{ .Info.Image }}" class="card-img-top" alt="...">
   <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+    <h5 class="card-title">{{ .Info.Name }}</h5>
+    <p class="card-text">{{ .Info.Price }}_{{ .Info.Currency }}</p>
   </div>
   <ul class="list-group list-group-flush">
     <li class="list-group-item">An item</li>
-    <li class="list-group-item">A second item</li>
-    <li class="list-group-item">A third item</li>
   </ul>
+  {{ range .Params }}
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item">{{ .Name }} {{ .Value }}</li>
+  </ul>
+  {{ end }}
 </div>
 
 {{ end }}

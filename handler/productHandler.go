@@ -12,7 +12,11 @@ func (h *Handler) GetCategories(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 
-	return c.Render(http.StatusOK, "startpage", categories)
+	var data = map[string]interface{}{}
+	data["Categories"] = categories
+	data["Currencies"] = h.currencies
+
+	return c.Render(http.StatusOK, "startpage", data)
 }
 
 func (h *Handler) GetGoodsByCategory(c echo.Context) error {
@@ -32,6 +36,7 @@ func (h *Handler) GetGoodsByCategory(c echo.Context) error {
 	data["Products"] = products
 	data["Brands"] = brands
 	data["Category"] = id
+	data["Currencies"] = h.currencies
 
 	return c.Render(http.StatusOK, "categoryitems", data)
 }
@@ -47,13 +52,21 @@ func (h *Handler) GetGoodsByBrand(c echo.Context) error {
 
 	var data = map[string]interface{}{}
 	data["Products"] = products
+	data["Currencies"] = h.currencies
 
 	return c.Render(http.StatusOK, "branditems", data)
 }
 
 func (h *Handler) GetItem(c echo.Context) error {
+	id := c.Param("id")
 
-	data := "https://prokotly.com.ua/wp-content/uploads/2019/07/170419152715.jpg"
+	params := h.services.Storage.GetItemParams(id)
+
+	var data = map[string]interface{}{}
+	data["Image"] = "https://prokotly.com.ua/wp-content/uploads/2019/07/170419152715.jpg"
+	data["Currencies"] = h.currencies
+	data["Params"] = params
+	data["Info"] = h.services.Storage.GetItemInfo(id)
 
 	return c.Render(http.StatusOK, "item", data)
 }

@@ -16,26 +16,25 @@ type Model struct {
 	Image     string
 }
 
-type Goods struct {
-	GoodsId   int
-	IdSite    int
-	Active    int
-	Article   string
-	GoodsName string
-	Model     int
-	Brand     int
-	Category  int
-	Amount    int
-	Uah       int
-	Usd       int
-	Eur       int
-	Price     int
+type Item struct {
+	Id       string
+	Name     string
+	Price    float64
+	Currency string
+	Rate     float64
+	Brand    string
+	Model    string
+	Amount   int
+	Image    string
+	Size     string
+	Weight   string
 }
 
-type Item struct {
-	Name   string
-	Price  int
-	Brand  string
-	Model  string
-	Amount int
+func (i *Item) ConvertPriceToUAH(price, rate float64) (result float64) {
+	return price * rate
+}
+
+type Param struct {
+	Name  string
+	Value string
 }
