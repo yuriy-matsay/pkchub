@@ -32,7 +32,6 @@ func OpenDatabase() (db *sql.DB, err error) {
 	if err == nil {
 		log.Print("Opened database")
 	}
-
 	// if err := migrationsUp(db); err != nil {
 	// 	log.Print("migration failed")
 	// }
