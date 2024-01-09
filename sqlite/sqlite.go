@@ -99,14 +99,6 @@ func (s *Sqlite) GetGoodsByCategory(categoryId string) (goods []map[models.Model
 
 	listModel := s.getListModelsByCategory(categoryId)
 
-	// stmtUAH, _ := s.db.Prepare(`
-	// 		SELECT goods.goodsName, goods.price, goods.amount, brands.brandsName, models.modelsName
-	// 		FROM goods
-	// 		INNER JOIN brands ON goods.brand = brands.id
-	// 		INNER JOIN models ON goods.model = models.id
-	// 		WHERE goods.model = ? AND goods.active = 1 AND goods.amount > 0
-	// 		`)
-
 	for _, i := range listModel {
 		rows, _ := s.db.Query(`
 			SELECT goods.goodsId, goods.goodsName, goods.price, currencies.currencyName, currencies.rate, goods.amount, brands.brandsName, models.modelsName
