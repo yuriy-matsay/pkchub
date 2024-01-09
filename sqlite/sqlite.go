@@ -182,12 +182,12 @@ func (s *Sqlite) GetItemParams(itemId string) (data []models.Param) {
 func (s *Sqlite) GetItemInfo(itemId string) (data models.Item) {
 
 	s.db.QueryRow(`
-		SELECT models.image, goods.goodsName, goods.price, currencies.currencyName, currencies.rate
+		SELECT models.image, goods.goodsName, goods.price, currencies.currencyName, currencies.rate, goods.size, goods.weight
 		FROM goods
 		INNER JOIN models ON goods.model = models.id
 		INNER JOIN currencies ON goods.currency = currencies.id
 		WHERE goodsId = ?
-		`, itemId).Scan(&data.Image, &data.Name, &data.Price, &data.Currency, &data.Rate)
+		`, itemId).Scan(&data.Image, &data.Name, &data.Price, &data.Currency, &data.Rate, &data.Size, &data.Weight)
 	return
 }
 

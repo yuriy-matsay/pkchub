@@ -4,10 +4,10 @@
   <img src="{{ .Info.Image }}" class="card-img-top" alt="...">
   <div class="card-body">
     <h5 class="card-title">{{ .Info.Name }}</h5>
-    <p class="card-text">{{ .Info.Price }}_{{ .Info.Currency }}</p>
+    <p class="card-text"><b><font color='blue'>{{ .Info.Price }}_{{ .Info.Currency }}</font></b></p>
   </div>
   <ul class="list-group list-group-flush">
-    <li class="list-group-item">An item</li>
+    <li class="list-group-item">Габарити (В*Ш*Г): {{ .Info.Size }} <br> Вага: {{ .Info.Weight }} кг</li>
   </ul>
   {{ range .Params }}
   <ul class="list-group list-group-flush">
