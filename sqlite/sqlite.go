@@ -3,7 +3,6 @@ package sqlite
 import (
 	"database/sql"
 	"log"
-	"os"
 	"pkhub/models"
 	"strconv"
 	"strings"
@@ -28,11 +27,11 @@ func NewSqliteDB() *Sqlite {
 }
 
 func OpenDatabase() (db *sql.DB, err error) {
-	db, err = sql.Open("sqlite", os.Getenv("DB_PATH"))
+	db, err = sql.Open("sqlite", "./goods.db")
 	if err == nil {
 		log.Print("Opened database")
 	}
-	// if err := migrationsUp(db); err != nil {
+	// if err := migrationsUp(db); err != nil { //os.Getenv("DB_PATH")
 	// 	log.Print("migration failed")
 	// }
 
@@ -107,7 +106,6 @@ func (s *Sqlite) GetGoodsByCategory(categoryId string) (goods []map[models.Model
 			INNER JOIN models ON goods.model = models.id
 			WHERE goods.model = ? AND goods.active = 1 AND goods.amount > 0
 			`, i.Id)
-		// rows, _ := stmt.Query(i.Id)
 
 		items := []models.Item{}
 		itemListByModel := make(map[models.Model][]models.Item)
@@ -234,8 +232,9 @@ func (s *Sqlite) getAllGoodsByCategory(categoryId string) (goods []map[models.Mo
 
 	for _, i := range listModel {
 		rows, _ := s.db.Query(`
-			SELECT goods.goodsId, goods.goodsName, goods.price, goods.amount, brands.brandsName, models.modelsName
+			SELECT goods.goodsId, goods.goodsName, goods.price, currencies.currencyName, goods.amount, brands.brandsName, models.modelsName
 			FROM goods
+			INNER JOIN currencies ON goods.currency = currencies.id
 			INNER JOIN brands ON goods.brand = brands.id
 			INNER JOIN models ON goods.model = models.id
 			WHERE goods.model = ? AND goods.active = 1
@@ -245,7 +244,7 @@ func (s *Sqlite) getAllGoodsByCategory(categoryId string) (goods []map[models.Mo
 		itemListByModel := make(map[models.Model][]models.Item)
 		for rows.Next() {
 			item := models.Item{}
-			if err = rows.Scan(&item.Id, &item.Name, &item.Price, &item.Amount, &item.Brand, &item.Model); err != nil {
+			if err = rows.Scan(&item.Id, &item.Name, &item.Price, &item.Currency, &item.Amount, &item.Brand, &item.Model); err != nil {
 				log.Print(err)
 				return
 			}

@@ -7,5 +7,5 @@ RUN go build -o main .
 FROM alpine:latest
 COPY --from=builder /app ./
 
-EXPOSE 8000
+EXPOSE 80
 ENTRYPOINT ["./main"]
