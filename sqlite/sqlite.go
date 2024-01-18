@@ -27,7 +27,7 @@ func NewSqliteDB() *Sqlite {
 }
 
 func OpenDatabase() (db *sql.DB, err error) {
-	db, err = sql.Open("sqlite", "./goods.db")
+	db, err = sql.Open("sqlite", "./db/goods.db")
 	if err == nil {
 		log.Print("Opened database")
 	}
