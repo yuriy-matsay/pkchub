@@ -27,7 +27,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 }
 
 func main() {
-	loadEnv()
+	// loadEnv()
 
 	db := sqlite.NewSqliteDB()
 	srvc := service.NewService(db)
@@ -54,7 +54,7 @@ func main() {
 	e.GET("/brands/:id", hdl.GetGoodsByBrand)
 	e.GET("/item/:id", hdl.GetItem)
 
-	e.Logger.Fatal(e.Start(":8000"))
+	e.Logger.Fatal(e.Start(":80"))
 }
 
 func loadEnv() {
