@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Make Dir
+      - name: Make
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
