@@ -6,11 +6,11 @@ on:
       - main
 
 jobs:
-  deploy:
+  rmc:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Make
+      - name: remove and clone
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
@@ -21,6 +21,19 @@ jobs:
             docker rm pkchub
             rm -r ./pkchub/
             git clone https://github.com/yuriy-matsay/pkchub.git
+
+  bld:
+    runs-on: ubuntu-latest
+    needs: rmc
+
+    steps:
+      - name: build
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          script: |
             cd ./pkchub/
             docker build . -t pkchubimage:$(echo $GITHUB_SHA | head -c7)
            
