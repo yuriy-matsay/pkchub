@@ -16,4 +16,18 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
-          script: mkdir lololo
+          script: |
+            docker stop pkchub
+            docker rm pkchub
+            rm -r ./pkchub/
+            git clone https://github.com/yuriy-matsay/pkchub.git
+            cd ./pkchub/
+            docker build . -t pkchubimage:$(echo $GITHUB_SHA | head -c7)
+            docker run -d \
+            --restart always \
+            --publish 80:80 \
+            --volume /root/db:/db \
+            --name pkchub \
+            pkchubimage:$(echo $GITHUB_SHA | head -c7)
+            
+            
