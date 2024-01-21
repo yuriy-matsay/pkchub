@@ -7,11 +7,11 @@
     <p class="card-text"><b><font color='blue'>{{ .Info.Price }}_{{ .Info.Currency }}</font></b></p>
   </div>
   <ul class="list-group list-group-flush">
-    <li class="list-group-item">Габарити (В*Ш*Г): {{ .Info.Size }} <br> Вага: {{ .Info.Weight }} кг</li>
+    <li class="list-group-item"><u>Габарити (В*Ш*Г):</u> {{ .Info.Size }} <br> <u>Вага:</u> {{ .Info.Weight }} кг</li>
   </ul>
   {{ range .Params }}
   <ul class="list-group list-group-flush">
-    <li class="list-group-item">{{ .Name }} {{ .Value }}</li>
+    <li class="list-group-item"><b>{{ .Name }}:</b> {{ .Value }}</li>
   </ul>
   {{ end }}
 </div>
