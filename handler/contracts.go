@@ -1,7 +1,13 @@
 package handler
 
 import (
+	"encoding/json"
 	"pkhub/service"
+)
+
+const (
+	curr string = "currencies"
+	cat  string = "categories"
 )
 
 type Handler struct {
@@ -10,8 +16,21 @@ type Handler struct {
 }
 
 func NewHandler(s *service.Service) *Handler {
+	value := s.Storage.GetCurrencies()
+	s.Cache.Set(curr, value)
+
+	categories, err := s.Storage.GetCategories()
+	if err != nil {
+		panic(err)
+	}
+	jsonData, err := json.Marshal(categories)
+	if err != nil {
+		panic(err)
+	}
+	s.Cache.Set(cat, jsonData)
+
 	return &Handler{
 		services:   s,
-		currencies: s.Storage.GetCurrencies(),
+		currencies: s.Cache.Get(curr),
 	}
 }
