@@ -63,10 +63,16 @@ func (h *Handler) GetItem(c echo.Context) error {
 	params := h.services.Storage.GetItemParams(id)
 
 	var data = map[string]interface{}{}
-	data["Image"] = "https://prokotly.com.ua/wp-content/uploads/2019/07/170419152715.jpg"
 	data["Currencies"] = h.currencies
 	data["Params"] = params
 	data["Info"] = h.services.Storage.GetItemInfo(id)
 
 	return c.Render(http.StatusOK, "item", data)
+}
+
+func (h *Handler) Update(c echo.Context) error {
+	// h.currencies = h.services.Storage.GetCurrencies()
+	h.services.Cache.SetFoo()
+
+	return c.HTML(http.StatusOK, "updates")
 }
