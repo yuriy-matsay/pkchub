@@ -1,13 +1,16 @@
 package handler
 
 import (
-	"net/http"
-
+	"encoding/json"
 	"github.com/labstack/echo/v4"
+	"net/http"
+	"pkhub/models"
 )
 
 func (h *Handler) GetCategories(c echo.Context) error {
-	categories, err := h.services.Storage.GetCategories()
+	var categories []models.Category
+	val := h.services.Cache.Get(cat)
+	err := json.Unmarshal([]byte(val), &categories)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
@@ -71,8 +74,9 @@ func (h *Handler) GetItem(c echo.Context) error {
 }
 
 func (h *Handler) Update(c echo.Context) error {
-	// h.currencies = h.services.Storage.GetCurrencies()
-	h.services.Cache.SetFoo()
+	val := h.services.Storage.GetCurrencies()
+	h.services.Cache.Set(curr, val)
+	h.currencies = h.services.Cache.Get(curr)
 
-	return c.HTML(http.StatusOK, "updates")
+	return c.HTML(http.StatusOK, "updated")
 }

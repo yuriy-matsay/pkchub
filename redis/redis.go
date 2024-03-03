@@ -2,8 +2,8 @@ package redis
 
 import (
 	"context"
+
 	"github.com/redis/go-redis/v9"
-	"time"
 )
 
 type Redis struct {
@@ -22,10 +22,20 @@ func New() *Redis {
 	}
 }
 
-func (r *Redis) SetFoo() {
+func (r *Redis) Set(key string, value interface{}) {
 	ctx := context.Background()
-	err := r.rdb.Set(ctx, "foo", "bar", 10*time.Second).Err()
+	err := r.rdb.Set(ctx, key, value, 0).Err()
 	if err != nil {
 		panic(err)
+	}
+}
+
+func (r *Redis) Get(key string) (value string) {
+	ctx := context.Background()
+	value, err := r.rdb.Get(ctx, key).Result()
+	if err != nil {
+		panic(err)
+	} else {
+		return
 	}
 }
