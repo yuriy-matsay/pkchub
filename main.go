@@ -5,6 +5,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"golang.org/x/crypto/acme/autocert"
 	"html/template"
 	"io"
 	"log"
@@ -34,6 +35,7 @@ func main() {
 	hdl := handler.NewHandler(srvc)
 
 	e := echo.New()
+	e.AutoTLSManager.Cache = autocert.DirCache("/var/www/.cache")
 
 	templates := make(map[string]*template.Template)
 
@@ -54,7 +56,8 @@ func main() {
 	e.GET("/brands/:id", hdl.GetGoodsByBrand)
 	e.GET("/item/:id", hdl.GetItem)
 
-	e.Logger.Fatal(e.Start(":80"))
+	// e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Fatal(e.StartAutoTLS(":443"))
 }
 
 func loadEnv() {
