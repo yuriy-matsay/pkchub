@@ -72,8 +72,7 @@ func (h *Handler) GetItem(c echo.Context) error {
 }
 
 func (h *Handler) Update(c echo.Context) error {
-	currensies := h.services.Storage.GetCurrencies()
-	h.services.Cache.Set(curr, currensies)
+	h.services.Cache.DeleteCache()
 
 	return c.HTML(http.StatusOK, "updates")
 }

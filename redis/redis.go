@@ -42,3 +42,8 @@ func (r *Redis) Get(key string) (value string, err error) {
 	log.Print("Get from cache ", key)
 	return
 }
+
+func (r *Redis) DeleteCache() {
+	ctx := context.Background()
+	r.rdb.FlushAll(ctx)
+}
