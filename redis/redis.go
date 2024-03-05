@@ -2,6 +2,8 @@ package redis
 
 import (
 	"context"
+	"log"
+
 	"github.com/redis/go-redis/v9"
 )
 
@@ -12,8 +14,8 @@ type Redis struct {
 func New() *Redis {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Password: "",
+		DB:       0,
 	})
 
 	return &Redis{
@@ -21,20 +23,22 @@ func New() *Redis {
 	}
 }
 
-func (r *Redis) Set(key string, value interface{}) {
+func (r *Redis) Set(key string, value interface{}) (err error) {
 	ctx := context.Background()
-	err := r.rdb.Set(ctx, key, value, 0).Err()
+	err = r.rdb.Set(ctx, key, value, 0).Err()
 	if err != nil {
-		panic(err)
+		return err
 	}
+	log.Print("Set to cache ", key)
+	return
 }
 
-func (r *Redis) Get(key string) (value string) {
+func (r *Redis) Get(key string) (value string, err error) {
 	ctx := context.Background()
-	value, err := r.rdb.Get(ctx, key).Result()
+	value, err = r.rdb.Get(ctx, key).Result()
 	if err != nil {
-		panic(err)
-	} else {
 		return
 	}
+	log.Print("Get from cache ", key)
+	return
 }

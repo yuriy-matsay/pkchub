@@ -38,7 +38,7 @@ func OpenDatabase() (db *sql.DB, err error) {
 	return
 }
 
-func (s *Sqlite) GetCurrencies() (currencies string) {
+func (s *Sqlite) GetCurrencies() (currencies string) { // TODO return err
 	var usd string
 	var eur string
 	s.db.QueryRow(`SELECT currencies.rate FROM currencies WHERE id = 2`).Scan(&usd)

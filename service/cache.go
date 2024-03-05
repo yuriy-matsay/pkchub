@@ -1,6 +1,6 @@
 package service
 
 type CacheInteface interface {
-	Set(key string, value interface{})
-	Get(key string) (value string)
+	Set(key string, value interface{}) (err error)
+	Get(key string) (value string, err error)
 }
