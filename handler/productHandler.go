@@ -3,11 +3,9 @@ package handler
 import (
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"pkhub/models"
 )
 
 func (h *Handler) GetCategories(c echo.Context) error {
-	var categories []models.Category
 	categories, err := h.getCategories()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)

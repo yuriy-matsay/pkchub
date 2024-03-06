@@ -9,6 +9,7 @@ import (
 const (
 	curr string = "currencies"
 	cat  string = "categories"
+	prod string = "productsByCategory"
 )
 
 func (h *Handler) getCurrencies() (currencies string) {
@@ -51,5 +52,5 @@ func (h *Handler) cacheJson(key string, value interface{}) {
 	if err != nil {
 		log.Print(err)
 	}
-	h.services.Cache.Set(cat, jsonData)
+	h.services.Cache.Set(key, jsonData)
 }
